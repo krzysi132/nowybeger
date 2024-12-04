@@ -2,13 +2,37 @@
 session_start();
 include 'db.php';
 
+// Sprawdzenie, czy użytkownik jest zalogowany
+if (isset($_SESSION['user_id'])) {
+    // Pobranie danych użytkownika z bazy danych
+    $user_id = $_SESSION['user_id'];
+    $sql = "SELECT * FROM uzytkownicy WHERE id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    if ($result->num_rows > 0) {
+        $user = $result->fetch_assoc();
+        $email = $user['email'];
+    } else {
+        // Jeśli użytkownik nie został znaleziony, wyloguj go
+        session_destroy();
+        header("Location: index.php");
+        exit();
+    }
+    $stmt->close();
+} else {
+    $email = null; // Użytkownik nie jest zalogowany
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $email = $_POST['email'];
+    $email_input = $_POST['email'];
     $haslo = $_POST['haslo'];
 
     $sql = "SELECT * FROM uzytkownicy WHERE email = ?";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("s", $email);
+    $stmt->bind_param("s", $email_input);
     $stmt->execute();
     $result = $stmt->get_result();
     
@@ -16,8 +40,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $user = $result->fetch_assoc();
         if (password_verify($haslo, $user['haslo'])) {
             $_SESSION['user_id'] = $user['id'];
-            echo "Zalogowano pomyślnie!";
-            // Przekierowanie do innej strony lub wyświetlenie treści
+            header("Location: index.php"); // Przekierowanie do tej samej strony
+            exit();
         } else {
             echo "Błędne hasło.";
         }
@@ -36,13 +60,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body>
     <h2>Logowanie</h2>
-    <form method="post">
-        <label>Email:</label>
-        <input type="email" name="email" required>
-        <label>Hasło:</label>
-        <input type="password" name="haslo" required>
-        <button type="submit">Zaloguj się</button>
-    </form>
+    <?php if ($email): ?>
+        <p>Witaj, <?php echo htmlspecialchars($email); ?>! Jesteś zalogowany.</p>
+        <a href="index.php">Wyloguj się</a>
+    <?php else: ?>
+        <form method="post">
+            <label>Email:</label>
+            <input type="email" name="email" required>
+            <label>Hasło:</label>
+            <input type="password" name="haslo" required>
+            <button type="submit">Zaloguj się</button>
+        </form>
+    <?php endif; ?>
 </body>
 </html>
 

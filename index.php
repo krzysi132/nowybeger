@@ -5,7 +5,7 @@ include 'db.php'; // Upewnij się, że masz plik db.php z odpowiednim połączen
 $sql = "SELECT * FROM tematy"; // Upewnij się, że tabela 'tematy' istnieje w bazie danych
 $result = $conn->query($sql);
 ?>
-<h1> zrób baze danych do logowan i reszte gówna <h1>
+
 <!DOCTYPE html>
 <html lang="pl">
 <head>

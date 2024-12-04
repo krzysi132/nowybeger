@@ -2,7 +2,7 @@
 $servername = "localhost";
 $username = "root";
 $password = ""; // Upewnij się, że hasło jest poprawne
-$dbname = "sterydy"; // Upewnij się, że ta baza danych istnieje
+$dbname = "sterydy.pl"; // Upewnij się, że ta baza danych istnieje
 
 // Utworzenie połączenia
 $conn = new mysqli($servername, $username, $password, $dbname);
